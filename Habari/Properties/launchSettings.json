@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Habari": {
+      "commandName": "Project",
+      "commandLineArgs": "config.json"
+    }
+  }
+}

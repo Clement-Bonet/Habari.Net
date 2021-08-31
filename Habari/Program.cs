@@ -1,5 +1,5 @@
 ﻿using Habari.Library;
-using Habari.Plugin;
+using Habari.PluginSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Habari
     {
         static void Main(string[] args)
         {
-            ConfigurationManager.Instance.LoadConfiguration("config.json");
+            ConfigurationManager.Instance.LoadConfiguration(args.Any() ? args[0] : "config.json");
 
             foreach (var item in ConfigurationManager.Instance.AvailablePluginsConnections)
             {

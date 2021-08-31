@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Habari.PluginSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Habari.Library
 {
@@ -16,13 +17,13 @@ namespace Habari.Library
 
         public string HttpPrefix { get => "http" + (Secured ? "s" : string.Empty) + "://" + Host + ":" + Port + "/"; }
 
-        public void LoadFromJToken(JToken server)
+        public void LoadFromJToken(JToken token)
         {
-            Host = server.Value<string>("host");
-            MetadataUri = server.Value<string>("metadataUri");
-            Port = server.Value<int>("port");
-            Uri = server.Value<string>("uri");
-            Secured = server.Value<bool>("secured");
+            Host = token.Value<string>("host");
+            MetadataUri = token.Value<string>("metadataUri");
+            Port = token.Value<int>("port");
+            Uri = token.Value<string>("uri");
+            Secured = token.Value<bool>("secured");
         }
     }
 }

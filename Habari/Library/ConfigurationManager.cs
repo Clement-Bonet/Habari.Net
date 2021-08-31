@@ -1,4 +1,4 @@
-﻿using Habari.Plugin;
+﻿using Habari.PluginSystem;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,8 +17,6 @@ namespace Habari.Library
 
         public HttpListener Listener { get => new HttpListener(); }
 
-        public string PluginDirectory { get => "plugins"; }
-
         public Dictionary<string, Type> AvailablePluginsConnections { get; private set; } = new Dictionary<string, Type>();
 
         public List<Configuration> Configurations { get; } = new List<Configuration>();
@@ -30,16 +28,12 @@ namespace Habari.Library
 
         public void LoadConfiguration(string configurationFilename)
         {
-            if (AvailablePluginsConnections == null || !AvailablePluginsConnections.Any())
-            {
-                LoadPlugins();
-            }
-
             JToken configurationFile = JObject.Parse(File.ReadAllText(configurationFilename))["configurations"];
             foreach (JToken configurationToken in configurationFile.Children())
             {
                 Configuration configuration = new Configuration();
-                foreach(JToken server in configurationToken["servers"].Children())
+                configuration.LoadFromJToken(configurationToken);
+                foreach (JToken server in configurationToken["servers"].Children())
                 {
                     Server srv = new Server();
                     srv.LoadFromJToken(server);
@@ -47,34 +41,71 @@ namespace Habari.Library
                 }
                 foreach (JToken connection in configurationToken["connections"].Children())
                 {
+                    if (!configuration.AvailablePlugins.ContainsKey(connection.Value<string>("connectionType")))
+                    {
+                        throw new Exception("The plugin {connection.Value<string>(\"connectionType\")} is not available.");
+                    }
+
+                    Assembly assembly = LoadPlugin(configuration.AvailablePlugins[connection.Value<string>("connectionType")]);
+                    if (assembly != null)
+                    {
+                        IEnumerable<IPlugin> plugins = CreatePlugins(assembly);
+                        foreach (var plugin in plugins)
+                        {
+                            plugin.Configure(connection, configuration.DefaultPageSize, configuration.AllowDelete, configuration.AllowGet, configuration.AllowPost, configuration.AllowPut);
+                            configuration.Plugins.Add(plugin);
+                        }
+                    }
+                    /*
                     Type type = AvailablePluginsConnections.FirstOrDefault(item => item.Key.Equals(connection.Value<string>("connectionType"), StringComparison.InvariantCultureIgnoreCase)).Value;
                     if (type != null)
                     {
-                        IConnection cnn = (IConnection)Activator.CreateInstance(type);
-                        cnn.LoadFromJToken(connection);
-                        configuration.Connections.Add(cnn);
+                        Plugin plugin = (Plugin)Activator.CreateInstance(type);
+                        plugin.Configure(connection);
+                        configuration.Plugins.Add(plugin);
                     }
+                    */
                 }
                 Configurations.Add(configuration);
             }
         }
 
-        private void LoadPlugins()
+        private Assembly LoadPlugin(string pluginLocation)
         {
-            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, PluginDirectory)))
+            if (!File.Exists(pluginLocation))
             {
-                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, PluginDirectory));
+                return null;
             }
 
-            Dictionary<string, Type> availableConnections = (
-                    from file in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, PluginDirectory))
-                    from type in Assembly.LoadFrom(file).GetTypes()
-                    where type.IsPublic
-                    where type.GetInterfaces().Contains(typeof(IConnection))
-                    select new KeyValuePair<string, Type>(((IConnection)Activator.CreateInstance(type)).Type, type)
-                ).ToDictionary(element => element.Key, element => element.Value);
+            Console.WriteLine($"Loading plugins from: {pluginLocation}");
+            PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
+            return loadContext.LoadFromAssemblyName(AssemblyName.GetAssemblyName(pluginLocation));
+        }
 
-            AvailablePluginsConnections = availableConnections;
+        private IEnumerable<IPlugin> CreatePlugins(Assembly assembly)
+        {
+            int count = 0;
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                if (typeof(IPlugin).IsAssignableFrom(type))
+                {
+                    IPlugin result = Activator.CreateInstance(type) as IPlugin;
+                    if (result != null)
+                    {
+                        count++;
+                        yield return result;
+                    }
+                }
+            }
+
+            if (count == 0)
+            {
+                string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
+                throw new ApplicationException(
+                    $"Can't find any type which implements IPlugin in {assembly} from {assembly.Location}.\n" +
+                    $"Available types: {availableTypes}");
+            }
         }
     }
 }

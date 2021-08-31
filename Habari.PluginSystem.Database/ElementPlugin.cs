@@ -1,0 +1,49 @@
+﻿using Newtonsoft.Json.Linq;
+using System.Net;
+
+namespace Habari.PluginSystem.Database
+{
+    internal class ElementPlugin : IPlugin
+    {
+        public IConfiguration Configuration { get; protected set; }
+
+        public bool Configure(JToken token, int defaultPageSize, bool allowDelete, bool allowGet, bool allowPost, bool allowPut)
+        {
+            Configuration = new ElementConfiguration();
+            Configuration.LoadFromJToken(token, defaultPageSize, allowDelete, allowGet, allowPost, allowPut);
+            return true;
+        }
+
+        public bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
+        {
+            statusCode = HttpStatusCode.OK;
+            return true;
+        }
+
+        public HttpStatusCode ProcessDelete(HttpListenerContext context)
+        {
+            return HttpStatusCode.OK;
+        }
+
+        public HttpStatusCode ProcessGet(HttpListenerContext context)
+        {
+            return HttpStatusCode.OK;
+        }
+
+        public bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
+        {
+            statusCode = HttpStatusCode.OK;
+            return true;
+        }
+
+        public HttpStatusCode ProcessPost(HttpListenerContext context)
+        {
+            return HttpStatusCode.OK;
+        }
+
+        public HttpStatusCode ProcessPut(HttpListenerContext context)
+        {
+            return HttpStatusCode.OK;
+        }
+    }
+}
