@@ -1,4 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Habari.PluginSystem.Database.Objects;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using System.Net;
 
 namespace Habari.PluginSystem.Database
@@ -14,36 +18,15 @@ namespace Habari.PluginSystem.Database
             return true;
         }
 
-        public bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
+        public bool MatchTypeAndName(string type, string name)
+        {
+            return ((ElementConfiguration)Configuration).MatchTypeAndName(type, name);
+        }
+
+        public bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref string contentType, ref object content)
         {
             statusCode = HttpStatusCode.OK;
             return true;
-        }
-
-        public HttpStatusCode ProcessDelete(HttpListenerContext context)
-        {
-            return HttpStatusCode.OK;
-        }
-
-        public HttpStatusCode ProcessGet(HttpListenerContext context)
-        {
-            return HttpStatusCode.OK;
-        }
-
-        public bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
-        {
-            statusCode = HttpStatusCode.OK;
-            return true;
-        }
-
-        public HttpStatusCode ProcessPost(HttpListenerContext context)
-        {
-            return HttpStatusCode.OK;
-        }
-
-        public HttpStatusCode ProcessPut(HttpListenerContext context)
-        {
-            return HttpStatusCode.OK;
         }
     }
 }

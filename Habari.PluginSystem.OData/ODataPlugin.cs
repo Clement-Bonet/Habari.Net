@@ -13,14 +13,14 @@ namespace Habari.PluginSystem.OData
             throw new NotImplementedException();
         }
 
-        public bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
+        public bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref string contentType, ref object content)
         {
             throw new NotImplementedException();
         }
 
-        public bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref object content)
-        {
-            throw new NotImplementedException();
-        }
+        //public bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref string contentType, ref object content)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

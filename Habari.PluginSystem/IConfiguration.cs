@@ -12,8 +12,6 @@ namespace Habari.PluginSystem
 
         bool AllowPut { get; }
 
-        int DefaultPageSize { get; }
-
         string MetadataUri { get; }
 
         string Type { get; }

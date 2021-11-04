@@ -56,15 +56,6 @@ namespace Habari.Library
                             configuration.Plugins.Add(plugin);
                         }
                     }
-                    /*
-                    Type type = AvailablePluginsConnections.FirstOrDefault(item => item.Key.Equals(connection.Value<string>("connectionType"), StringComparison.InvariantCultureIgnoreCase)).Value;
-                    if (type != null)
-                    {
-                        Plugin plugin = (Plugin)Activator.CreateInstance(type);
-                        plugin.Configure(connection);
-                        configuration.Plugins.Add(plugin);
-                    }
-                    */
                 }
                 Configurations.Add(configuration);
             }

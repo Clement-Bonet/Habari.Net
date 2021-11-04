@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Habari.PluginSystem.Databas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Habari.PluginSystem.OData", "Habari.PluginSystem.OData\Habari.PluginSystem.OData.csproj", "{123EA59D-D138-4BE6-B2B0-509A7CEE4C79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Habari.PluginSystem.Template", "Habari.PluginSystem.Template\Habari.PluginSystem.Template.csproj", "{14184639-8B90-4157-895B-A8AB9D61E775}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Habari.PluginSystem.Template", "Habari.PluginSystem.Template\Habari.PluginSystem.Template.csproj", "{14184639-8B90-4157-895B-A8AB9D61E775}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Habari.PluginSystem.Mail", "Habari.PluginSystem.Mail\Habari.PluginSystem.Mail.csproj", "{619DA6E1-678F-4167-88E0-E4C8879CC7F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Habari.PluginSystem.ToCsv", "Habari.PluginSystem.ToCsv\Habari.PluginSystem.ToCsv.csproj", "{6A61932F-1B7E-4054-B070-F95ABFDB49E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{14184639-8B90-4157-895B-A8AB9D61E775}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14184639-8B90-4157-895B-A8AB9D61E775}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14184639-8B90-4157-895B-A8AB9D61E775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{619DA6E1-678F-4167-88E0-E4C8879CC7F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{619DA6E1-678F-4167-88E0-E4C8879CC7F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{619DA6E1-678F-4167-88E0-E4C8879CC7F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{619DA6E1-678F-4167-88E0-E4C8879CC7F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A61932F-1B7E-4054-B070-F95ABFDB49E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A61932F-1B7E-4054-B070-F95ABFDB49E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A61932F-1B7E-4054-B070-F95ABFDB49E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A61932F-1B7E-4054-B070-F95ABFDB49E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

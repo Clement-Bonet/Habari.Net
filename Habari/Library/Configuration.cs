@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Habari.Library
 {
@@ -28,10 +30,17 @@ namespace Habari.Library
 
         public List<Server> Servers { get; } = new List<Server>();
 
-        public List<IPlugin> GetConnectionsFromUri(string uri) => (from server in Servers
-                                                                  from plugin in Plugins
-                                                                  where uri.StartsWith(Path.Combine(server.Uri, plugin.Configuration.RestUri))
-                                                                  select plugin).ToList();
+        public List<IPlugin> GetConnectionsFromRest(string userHostAddress, string uri) => (from server in Servers
+                                                                                            from plugin in Plugins
+                                                                                                // where uri.StartsWith(Path.Combine(server.Uri, plugin.Configuration.RestUri))
+                                                                                            where new Regex(plugin.Configuration.RestUri, RegexOptions.IgnoreCase).Matches(uri).Any()
+                                                                                            where server.Host + ":" + server.Port == userHostAddress
+                                                                                            select plugin).ToList();
+
+        //public List<IPlugin> GetConnectionsFromMetadata(string uri) => (from server in Servers
+        //                                                                from plugin in Plugins
+        //                                                                where uri.StartsWith(Path.Combine(server.Uri, plugin.Configuration.MetadataUri))
+        //                                                                select plugin).ToList();
 
         private HttpListener Listener { get; } = new HttpListener();
 
@@ -120,21 +129,33 @@ namespace Habari.Library
 
         private void ComputeUri(HttpListenerContext context)
         {
-            List<IPlugin> plugins = GetConnectionsFromUri(context.Request.RawUrl);
+            List<IPlugin> pluginsRest = GetConnectionsFromRest(context.Request.UserHostAddress, context.Request.RawUrl);
+            //List<IPlugin> pluginsMetadata = GetConnectionsFromMetadata(context.Request.RawUrl);
+            string contentType = string.Empty;
             object content = null;
             bool handled = true;
             HttpStatusCode statusCode = HttpStatusCode.NotFound;
             using (var response = context.Response)
             {
+                response.Headers.Add("Server", Assembly.GetExecutingAssembly().GetName().Name + " version " + Assembly.GetExecutingAssembly().GetName().Version);
                 try
                 {
-                    foreach (IPlugin plugin in plugins)
+                    foreach (IPlugin pluginRest in pluginsRest)
                     {
-                        handled &= plugin.Process(context, out statusCode, ref content);
+                        handled &= pluginRest.Process(context, out statusCode, ref contentType, ref content);
                     }
-                    if (!handled)
+                    //foreach (IPlugin pluginMetadata in pluginsMetadata)
+                    //{
+                    //    handled &= pluginMetadata.ProcessMetadata(context, out statusCode, ref contentType, ref content);
+                    //}
+
+                    response.StatusCode = (int)statusCode;
+                    response.ContentType = contentType + "; charset=utf-8";
+                    if (content != null)
                     {
-                        response.StatusCode = (int)statusCode;
+                        var buffer = Encoding.UTF8.GetBytes(content.ToString());
+                        response.ContentLength64 = buffer.Length;
+                        response.OutputStream.Write(buffer, 0, buffer.Length);
                     }
                 }
                 catch (Exception e)
@@ -144,6 +165,10 @@ namespace Habari.Library
                     var buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(e));
                     response.ContentLength64 = buffer.Length;
                     response.OutputStream.Write(buffer, 0, buffer.Length);
+                }
+                finally
+                {
+                    response.OutputStream.Close();
                 }
             }
         }

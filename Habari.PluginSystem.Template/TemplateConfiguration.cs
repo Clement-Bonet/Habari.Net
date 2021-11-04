@@ -7,25 +7,24 @@ namespace Habari.PluginSystem.Template
 {
     public class TemplateConfiguration : IConfiguration
     {
-        public bool AllowDelete => throw new NotImplementedException();
+        public bool AllowDelete => false;
 
-        public bool AllowGet => throw new NotImplementedException();
+        public bool AllowGet => true;
 
-        public bool AllowPost => throw new NotImplementedException();
+        public bool AllowPost => true;
 
-        public bool AllowPut => throw new NotImplementedException();
+        public bool AllowPut => true;
 
-        public int DefaultPageSize => throw new NotImplementedException();
+        public string MetadataUri { get; protected set; }
 
-        public string MetadataUri => throw new NotImplementedException();
+        public string Type => "ToCSV";
 
-        public string Type => throw new NotImplementedException();
-
-        public string RestUri => throw new NotImplementedException();
+        public string RestUri { get; protected set; }
 
         public void LoadFromJToken(JToken token, int defaultPageSize, bool allowDelete, bool allowGet, bool allowPost, bool allowPut)
         {
-            throw new NotImplementedException();
+            MetadataUri = token.Value<string>("metadataUri");
+            RestUri = token.Value<string>("restUri");
         }
     }
 }

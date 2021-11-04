@@ -9,8 +9,8 @@ namespace Habari.PluginSystem
 
         bool Configure(JToken token, int defaultPageSize, bool allowDelete, bool allowGet, bool allowPost, bool allowPut);
 
-        bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref object content);
+        bool Process(HttpListenerContext context, out HttpStatusCode statusCode, ref string contentType, ref object content);
 
-        bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref object content);
+        //bool ProcessMetadata(HttpListenerContext context, out HttpStatusCode statusCode, ref string contentType, ref object content);
     }
 }

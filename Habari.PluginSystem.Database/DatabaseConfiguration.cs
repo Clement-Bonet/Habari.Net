@@ -103,6 +103,17 @@ namespace Habari.PluginSystem.Database
                 case DatabaseEngine.MySql:
                     switch (sqlType.ToUpper())
                     {
+                        case "DATE":
+                        case "DATETIME":
+                        case "TIMESTAMP":
+                            result = DatabaseType.DateTime;
+                            break;
+                        case "INT":
+                            result = DatabaseType.Integer;
+                            break;
+                        case "NUMBER":
+                            result = DatabaseType.Double;
+                            break;
                         default:
                             result = DatabaseType.String;
                             break;
@@ -488,7 +499,7 @@ namespace Habari.PluginSystem.Database
         #region Tables
         protected List<Table> GetTablesList()
         {
-            List<Table> result = new List<Table>();
+            List<Table> tables = new List<Table>();
             using (DbConnection dbConnection = GetDbConnection())
             {
                 DbCommand dbCommandTable = dbConnection.CreateCommand();
@@ -499,11 +510,14 @@ namespace Habari.PluginSystem.Database
                 {
                     // Table
                     Table table = new Table() { Name = dbDataReaderTable.GetString("NAME") };
-                    result.Add(table);
+                    if (Elements.Any(element => element.MatchTypeAndName("table", table.Name)))
+                    {
+                        tables.Add(table);
+                    }
                 }
                 dbDataReaderTable.Close();
 
-                foreach (var table in result)
+                foreach (var table in tables)
                 {
                     // Columns
                     DbCommand dbCommandTableColumns = dbConnection.CreateCommand();
@@ -537,7 +551,7 @@ namespace Habari.PluginSystem.Database
                     dbDataReaderPrimaryKeyColumns.Close();
                 }
 
-                foreach (var table in result)
+                foreach (var table in tables)
                 {
                     //Foreign keys
                     DbCommand dbCommandForeignKeys = dbConnection.CreateCommand();
@@ -546,8 +560,11 @@ namespace Habari.PluginSystem.Database
                     DbDataReader dbDataReaderForeignKeys = dbCommandForeignKeys.ExecuteReader();
                     while (dbDataReaderForeignKeys.Read())
                     {
-                        ForeignKey foreignKey = new ForeignKey() { Name = dbDataReaderForeignKeys.GetString("NAME"), ReferencedTable = result.First(t => t.Name == dbDataReaderForeignKeys.GetString("REFERENCE")) };
-                        table.ForeignKeys.Add(foreignKey);
+                        if (tables.Any(t => t.Name == dbDataReaderForeignKeys.GetString("REFERENCE")))
+                        {
+                            ForeignKey foreignKey = new ForeignKey() { Name = dbDataReaderForeignKeys.GetString("NAME"), ReferencedTable = tables.First(t => t.Name == dbDataReaderForeignKeys.GetString("REFERENCE")) };
+                            table.ForeignKeys.Add(foreignKey);
+                        }
                     }
                     dbDataReaderForeignKeys.Close();
                     foreach (var foreignKey in table.ForeignKeys)
@@ -567,7 +584,7 @@ namespace Habari.PluginSystem.Database
 
                 dbConnection.Close();
             }
-            return result;
+            return tables;
         }
         #endregion Tables
 
@@ -585,7 +602,10 @@ namespace Habari.PluginSystem.Database
                 {
                     // View
                     View view = new View() { Name = dbDataReaderView.GetString("NAME") };
-                    result.Add(view);
+                    if (Elements.Any(element => element.MatchTypeAndName("view", view.Name)))
+                    {
+                        result.Add(view);
+                    }
                 }
                 dbDataReaderView.Close();
 
@@ -628,7 +648,7 @@ namespace Habari.PluginSystem.Database
             {
                 case DatabaseEngine.MySql:
                     result = new MySqlConnection();
-                    result.ConnectionString = "Server=" + Host + ";Database=" + DatabaseName + ";port=" + Port + ";User Id=" + Login + ";password=" + Password + ";Character Set=" + CharacterSet + (SslEnabled ? ";SSLMode=Required" : ";SSLMode=None");
+                    result.ConnectionString = "Server=" + Host + ";Database=" + DatabaseName + ";port=" + Port + ";User Id=" + Login + ";password=" + Password + ";Character Set=" + CharacterSet + (SslEnabled ? ";SSLMode=Required" : ";SSLMode=None; convert zero datetime=True");
                     result.Open();
                     using (DbCommand cmd = result.CreateCommand())
                     {
@@ -685,7 +705,7 @@ namespace Habari.PluginSystem.Database
             foreach (JToken element in token["elements"].Children())
             {
                 ElementPlugin elm = new ElementPlugin();
-                elm.Configure(element, DefaultPageSize, AllowDelete, AllowGet, AllowPost, AllowPut);
+                elm.Configure(element, defaultPageSize, allowDelete, allowGet, allowPost, allowPut);
                 Elements.Add(elm);
             }
         }

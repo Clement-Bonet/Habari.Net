@@ -3,21 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 
-namespace Habari.PluginSystem.Database
+namespace Habari.PluginSystem.Database.OData
 {
     public class OData
     {
-        public List<string> Columns { get; } = new List<string>();
-
+        public List<string> Select { get; } = new List<string>();
+        
         public string Table { get; private set; }
 
-        public List<string> Wheres { get; } = new List<string>();
+        public List<Filter> Filters { get; } = new List<Filter>();
 
         public List<string> OrderBys { get; } = new List<string>();
 
         public List<string> GroupBys { get; } = new List<string>();
+
+        public List<OData> Expands { get; } = new List<OData>();
 
         public int? Top { get; private set; }
 
@@ -25,7 +28,7 @@ namespace Habari.PluginSystem.Database
 
         public string ToSql(int defaultPageSize)
         {
-            string result = "SELECT " + (Columns.Count > 0 ? string.Join(",", Columns) : "*") + " FROM " + Table + " WHERE 1=1 " + string.Join(" AND ", Wheres);
+            string result = "SELECT " + (Select.Count > 0 ? string.Join(",", Select) : "*") + " FROM " + Table + " WHERE 1=1 " + string.Join(" AND ", Filters);
 
             if (GroupBys.Count > 0)
             {
@@ -45,48 +48,33 @@ namespace Habari.PluginSystem.Database
             return result;
         }
 
-        public static OData Parse(string tableName, NameValueCollection value)
+        public static OData Parse(string rootUri, HttpListenerRequest request)
         {
             OData data = new OData();
-            if (value.AllKeys.Any(k => k == "$Columns"))
+            string tableName = request.RawUrl.Replace(rootUri, string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            NameValueCollection value = request.QueryString;
+            /*
+            if (value.AllKeys.Any(k => k == "$select"))
             {
-                data.Columns.AddRange(value["$Columns"].Split(",").ToList());
+                data.Select.AddRange(value["$select"].Split(",").ToList().Where(i => !string.IsNullOrWhiteSpace(i)));
             }
 
-            if (value.AllKeys.Any(k => k == "$Wheres"))
+            if (value.AllKeys.Any(k => k == "filter"))
             {
-                data.Wheres.AddRange(value["$Wheres"].Split(",").ToList());
+                data.Filters.AddRange(value["filter"].Split(",").ToList().Where(i => !string.IsNullOrWhiteSpace(i)));
             }
+            */
 
             return data;
         }
 
-        public static OData Parse(string tableName, string value)
-        {
-            return JsonConvert.DeserializeObject<OData>(value);
-        }
-
-        public static bool TryParse(string tableName, NameValueCollection value, out OData data)
+        public static bool TryParse(string rootUri, HttpListenerRequest request, out OData data)
         {
             bool result = false;
             data = null;
             try
             {
-                data = Parse(tableName, value);
-                result = true;
-            }
-            catch { }
-
-            return result;
-        }
-
-        public static bool TryParse(string tableName, string value, out OData data)
-        {
-            bool result = false;
-            data = null;
-            try
-            {
-                data = Parse(tableName, value);
+                data = Parse(rootUri, request);
                 result = true;
             }
             catch { }

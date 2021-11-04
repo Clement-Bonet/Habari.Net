@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Habari.PluginSystem.Database
 {
@@ -27,6 +29,11 @@ namespace Habari.PluginSystem.Database
         protected string ObjectType { get; set; }
 
         public string ODataUri { get; private set; }
+
+        public bool MatchTypeAndName(string type, string name)
+        {
+            return new Regex(ObjectType, RegexOptions.IgnoreCase).Matches(type).Any() && new Regex(ObjectName, RegexOptions.IgnoreCase).Matches(name).Any();
+        }
 
         public void LoadFromJToken(JToken token, int defaultPageSize, bool allowDelete, bool allowGet, bool allowPost, bool allowPut)
         {
