@@ -1,0 +1,122 @@
+{
+  "configurations": [
+    {
+      "allowSelect": true,
+      "allowInsert": false,
+      "allowUpdate": false,
+      "allowDelete": false,
+      "defaultPageSize": 0,
+      "availablePlugins": [
+        {
+          "connectionType": "Habari.PluginSystem.Database",
+          "path": "<path-to-repo>/Habari.PluginSystem.Database/bin/Debug/net5/Habari.PluginSystem.Database.dll"
+        },
+        {
+          "connectionType": "Habari.PluginSystem.OData",
+          "path": "<path-to-repo>/Habari.PluginSystem.OData/bin/Debug/net5/Habari.PluginSystem.OData.dll"
+        },
+        {
+          "connectionType": "Habari.PluginSystem.Mail",
+          "path": "<path-to-repo>/Habari.PluginSystem.Mail/bin/Debug/net5/Habari.PluginSystem.Mail.dll"
+        },
+        {
+          "connectionType": "Habari.PluginSystem.Template",
+          "path": "<path-to-repo>/Habari.PluginSystem.Template/bin/Debug/net5/Habari.PluginSystem.Template.dll"
+        },
+        {
+          "connectionType": "Habari.PluginSystem.ToCSV",
+          "path": "<path-to-repo>/Habari.PluginSystem.ToCSV/bin/Debug/net5/Habari.PluginSystem.ToCSV.dll"
+        }
+      ],
+      "servers": [
+        {
+          "secured": false,
+          "host": "127.0.0.1",
+          "port": 9000,
+          "configurationUri": "/config",
+          "metadataUri": "/metadata",
+          "uri": "/"
+        }
+      ],
+      "connections": [
+        {
+          "applicationName": "habari",
+          "metadataUri": "^/api/mydb?$metadata=true$",
+          "restUri": "^/api/mydb",
+          "connectionType": "Habari.PluginSystem.Database",
+          "databaseEngine": "mysql",
+          "authType": "",
+          "login": "<db-user>",
+          "password": "<db-password>",
+          "host": "<db-host>",
+          "port": 3306,
+          "sslEnabled": "false",
+          "characterSet": "utf8mb4",
+          "collate": "utf8mb4_unicode_ci",
+          "databaseName": "<database>",
+          "instanceName": "",
+          "schemaName": "<schema>",
+          "maxSimultaneousConnections": 10,
+          "defaultPageSize": 0,
+          "supportTransaction": true,
+          "allowSelect": true,
+          "allowInsert": false,
+          "allowUpdate": false,
+          "allowDelete": false,
+          "elements": [
+            {
+              "defaultPageSize": 50,
+              "metadataUri": "/{objectName}/?$metadata=true",
+              "objectName": "<table-or-view>",
+              "objectType": "TABLE|VIEW",
+              "odataUri": "/{objectName}/odata",
+              "restUri": "/{objectName}"
+            }
+          ]
+        },
+        {
+          "metadataUri": "[&?]format=csv",
+          "restUri": "[&?]format=csv",
+          "connectionType": "Habari.PluginSystem.ToCSV"
+        },
+        {
+          "restUri": "^/api/contact",
+          "connectionType": "Habari.PluginSystem.Mail",
+          "asynchronous": false,
+          "bcc": [],
+          "body": "{body}",
+          "cc": [],
+          "enableSsl": true,
+          "from": {
+            "name": "Habari",
+            "address": "<sender@example.com>"
+          },
+          "isBodyHtml": false,
+          "replyTo": {
+            "name": "Contact",
+            "address": "<reply-to@example.com>"
+          },
+          "to": [
+            {
+              "name": "{toName}",
+              "address": "{toMail}"
+            }
+          ],
+          "sslProtocols": {
+            "Ssl2": false,
+            "Ssl3": false,
+            "Tls": false,
+            "Tls11": false,
+            "Tls12": true,
+            "Tls13": true
+          },
+          "subject": "{subject}",
+          "host": "<smtp-host>",
+          "port": 587,
+          "login": "<smtp-user>",
+          "password": "<smtp-password>"
+        }
+      ]
+    }
+  ]
+}
